@@ -33,7 +33,43 @@ bp_tree* get_bp_root(int m){
     return tmp;
 }
 
-bp_tree* split_bp(){
+bp_tree* split_bp(bp_tree* node){
+    bp_tree* parent = node;
+    bp_tree* left = (bp_tree*)malloc(sizeof(bp_tree));
+    
+
+
+    bp_tree* right = (bp_tree*)malloc(sizeof(bp_tree));
+    left->m = parent->m;
+    right->m = parent->m;
+
+    left->key_len = parent->key_len/2;
+    right->key_len = parent->key_len/2;
+
+    if(parent->leaf_bool == 1){
+        left->leaf_bool = 1;
+        right->leaf_bool = 1;
+        
+        left->prev = parent->prev;
+        left->next = right;
+        if(parent->prev != NULL) parent->prev->next = left;
+        parent->prev = NULL;
+        
+        right->prev = left;
+        right->next = parent->next;
+        if(parent->next !=NULL) parent->next->prev = right;
+        parent->next = NULL;
+    }
+
+    for(int i=0; i<node->m/2; i++){
+        left->index[i] = parent->index[i];
+        left->ptr[i] = parent->ptr[i];
+    }
+    left->ptr[node->m/2] = parent->ptr[node->m/2];
+
+
+    for(int i=0; i<node->m/2; i++)
+
 
 }
 
@@ -50,6 +86,7 @@ bp_tree* insert_bp(double num, bp_tree* node){
         for(int i=0; i<node->m; i++){
             if(node)
         }
+
         node->index[node->key_len] = num;
         node->key_len++;
 
