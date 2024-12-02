@@ -34,31 +34,65 @@ bp_tree* get_bp_root(int m){
 }
 
 bp_tree* split_bp(bp_tree* node){
-    bp_tree* parent = node;
     bp_tree* left = (bp_tree*)malloc(sizeof(bp_tree));
+    bp_tree* right = (bp_tree*)malloc(sizeof(bp_tree));
+
+    left->m = node->m;
+    right->m = node->m;
+
     
 
-
-    bp_tree* right = (bp_tree*)malloc(sizeof(bp_tree));
-    left->m = parent->m;
-    right->m = parent->m;
-
-    left->key_len = parent->key_len/2;
-    right->key_len = parent->key_len/2;
-
-    if(parent->leaf_bool == 1){
+    if(node->leaf_bool == 1){
+        node->leaf_bool = 0;
         left->leaf_bool = 1;
         right->leaf_bool = 1;
         
-        left->prev = parent->prev;
+        left->key_len = node->key_len/2;
+        right->key_len = node->key_len - left->key_len;
+
+        left->prev = node->prev;
         left->next = right;
-        if(parent->prev != NULL) parent->prev->next = left;
-        parent->prev = NULL;
+        if(node->prev != NULL) node->prev->next = left;
+        node->prev = NULL;
         
         right->prev = left;
-        right->next = parent->next;
-        if(parent->next !=NULL) parent->next->prev = right;
-        parent->next = NULL;
+        right->next = node->next;
+        if(node->next !=NULL) node->next->prev = right;
+        node->next = NULL;
+
+        int i=0;
+        for(i; i<left->key_len; i++)    left->index[i] = node->index[i];
+        for(int j=0; i<node->key_len; j++,i++)  right->index[j] = node->index[i];
+
+        node->index[0] = node->index[node->key_len/2];
+        node->key_len = 1;
+        
+        node->ptr[0] =  left;
+        node->ptr[1] = right;
+        node->ptr_len = 2;
+    }
+    else{
+
+        left->key_len = node->key_len/2;
+        right->key_len = node->key_len - left->key_len - 1;
+        
+        int i=0;
+        for(i; i<left->key_len; i++){
+            left->index[i] = node->index[i];
+            left->ptr[i] = node->ptr[i];
+        }
+        i++;
+        left->ptr[i] = node->ptr[i];
+        for(int j=0; i<node->key_len; j++,i++)  right->index[j] = node->index[i];
+
+        node->index[0] = node->index[node->key_len/2];
+        node->key_len = 1;
+        
+        node
+
+        node->ptr[0] =  left;
+        node->ptr[1] = right;
+        node->ptr_len = 2;
     }
 
     for(int i=0; i<node->m/2; i++){
