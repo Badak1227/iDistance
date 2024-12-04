@@ -33,14 +33,12 @@ bp_tree* get_bp_root(int m){
     return tmp;
 }
 
-bp_tree* split_bp(bp_tree* node){
+void split_bp(bp_tree* node){
     bp_tree* left = (bp_tree*)malloc(sizeof(bp_tree));
     bp_tree* right = (bp_tree*)malloc(sizeof(bp_tree));
 
     left->m = node->m;
     right->m = node->m;
-
-    
 
     if(node->leaf_bool == 1){
         node->leaf_bool = 0;
@@ -76,38 +74,40 @@ bp_tree* split_bp(bp_tree* node){
         left->key_len = node->key_len/2;
         right->key_len = node->key_len - left->key_len - 1;
         
-        int i=0;
-        for(i; i<left->key_len; i++){
+        // 1. 왼쪽 노드로 키와 포인터 이동
+        int i = 0;
+        for (i = 0; i < left->key_len; i++) {
             left->index[i] = node->index[i];
             left->ptr[i] = node->ptr[i];
         }
-        i++;
-        left->ptr[i] = node->ptr[i];
-        for(int j=0; i<node->key_len; j++,i++)  right->index[j] = node->index[i];
+        left->ptr[i] = node->ptr[i]; // 마지막 포인터 추가
+
+        // 2. 오른쪽 노드로 키와 포인터 이동
+        int j = 0;
+        for (i = left->key_len + 1; i < node->key_len; i++, j++) {
+            right->index[j] = node->index[i];
+            right->ptr[j] = node->ptr[i];
+        }
+        right->ptr[j] = node->ptr[i];
 
         node->index[0] = node->index[node->key_len/2];
         node->key_len = 1;
-        
-        node
 
-        node->ptr[0] =  left;
+        for(int k=0; k<node->m; k++)    node->ptr[k] = NULL;
+
+        node->ptr[0] = left;
         node->ptr[1] = right;
         node->ptr_len = 2;
     }
 
-    for(int i=0; i<node->m/2; i++){
-        left->index[i] = parent->index[i];
-        left->ptr[i] = parent->ptr[i];
-    }
-    left->ptr[node->m/2] = parent->ptr[node->m/2];
-
-
-    for(int i=0; i<node->m/2; i++)
-
-
+    return 0;
 }
 
 void merge_bp(){
+
+}
+
+void check_bp(){
 
 }
 
@@ -117,26 +117,41 @@ bp_tree* insert_bp(double num, bp_tree* node){
     if(node->leaf_bool == 1){
         double tmp = 0;
 
-        for(int i=0; i<node->m; i++){
-            if(node)
+        for(int i=node->key_len; i>0; i--){
+            if(node->index[i-1] > num) node->index[i] = node->index[i-1];
+            else node->index[i] = num;
         }
-
-        node->index[node->key_len] = num;
         node->key_len++;
 
-        if(node->key_len == node->m)    return split_bp();
+        if(node->key_len == node->m-1)    split_bp(node);
     }
     //현재 노드가 leaf_node가 아닐 경우
     else{
-        if(node->index[0] > num)    insert_bp(num, node->ptr[0]);
-        else{
-            for(int i=1; i<node->key_len; i++){
-                
-                if(node->index[0] >= num){
-                    insert_bp(num, node->ptr[i+1]);
-                }
+        int i=0;
+        for (i = 0; i < node->key_len; i++) {
+            if (node->index[i] > num) {
+                break;
             }
         }
+
+        insert_bp(num, node->ptr[i]);
+
+        if(check(node, node->ptr[i])){
+            
+            for(int j=node->key_len; j > i; j++){
+                node->index[j] = node->index[j-1];
+                
+            }
+            node->index[i] = node->ptr[i]->index[0];
+            node->ptr[i] = node->ptr[i]->ptr[0];
+            node->ptr[i+1] = node->ptr[i]->ptr[1];
+
+            free(node->ptr[i]);
+
+            node->key_len++;
+            if(node->key_len == node->m-1)    split_bp(node);
+        }
+        
     }
 
     return NULL;
