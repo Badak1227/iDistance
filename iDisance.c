@@ -64,11 +64,9 @@ void* read(void* arg){
     sem_wait(&s);
 }
 
-
-
 int main(){
     sem_init(&s, 0, 1);
-    pthread_t thread;
+    pthread_t thread[4];
 
     int n;
     unsigned int seed[2];
@@ -77,10 +75,11 @@ int main(){
     
     seed[0] = (unsigned int)n;
     seed[1] = 42;
-
-    for(int i=0; i<200; i++){
-        pthread_create(&thread, NULL, insert, (void*)seed);
+.
+    for(int i=0; i<n; i++){
+        pthread_create(&thread[0], NULL, insert, (void*)seed);
+        pthread_create(&thread[1], NULL, insert, (void*)seed);
+        pthread_create(&thread[2], NULL, read, (void*)seed);
+        pthread_create(&thread[3], NULL, read, (void*)seed);
     }
-    
-
 }
