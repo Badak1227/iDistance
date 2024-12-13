@@ -6,38 +6,21 @@
 			"label": "C/C++: gcc.exe build active file",
 			"command": "C:\\mingw64\\bin\\gcc.exe",
 			"args": [
-				"-fdiagnostics-color=always",
-				"-g",
-				"${file}",
-				"-o",
-				"${fileDirname}\\${fileBasenameNoExtension}.exe"
-			],
-			"options": {
-				"cwd": "${fileDirname}"
-			},
+                "-fdiagnostics-color=always",
+                "-g",
+                "${workspaceFolder}\\iDistance.c",
+                "${workspaceFolder}\\bpTree.c",
+                "-o",
+                "${workspaceFolder}\\iDistance.exe"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
 			"problemMatcher": [
 				"$gcc"
 			],
 			"group": {
-				"kind": "test",
-				"isDefault": true
-			},
-			"detail": "compiler: C:\\mingw64\\bin\\gcc.exe"
-		},
-		{
-			"type": "shell",
-			"label": "Run",
-			"command": "${fileDirname}\\Kalman_Filter.exe",
-			"args": [
-			],
-			"options": {
-				"cwd": "${fileDirname}"
-			},
-			"problemMatcher": [
-				"$gcc"
-			],
-			"group": {
-				"kind": "test",
+				"kind": "build",
 				"isDefault": true
 			},
 			"detail": "compiler: C:\\mingw64\\bin\\gcc.exe"
