@@ -111,11 +111,11 @@ void search_bp(double num, bp_tree* node){
             }
         }
 
-        search_bp(num, node);
+        search_bp(num, node->child[i]);
     }
     //리프 노드일 때
     else {
-        value knn[6] = {0};
+        value knn[5] = {0};
         double knn_dist[6] = {0};
         int len = 0;
 
@@ -129,7 +129,7 @@ void search_bp(double num, bp_tree* node){
 
                 int k;
                 for(k = len; k>0; k--){
-                    if(knn_dist[k] > dist){
+                    if(knn_dist[k-1] > dist){
                         knn_dist[k] = knn_dist[k-1];
                         knn[k] = knn[k-1];
                     } 
@@ -139,7 +139,7 @@ void search_bp(double num, bp_tree* node){
                 knn_dist[k] = dist;
                 knn[k] = left->key[i];
 
-                if(len < 6) len++;
+                if(len < 5) len++;
             }
         }
 
@@ -149,7 +149,7 @@ void search_bp(double num, bp_tree* node){
 
             int k;
             for(k = len; k>0; k--){
-                if(knn_dist[k] > dist){
+                if(knn_dist[k-1] > dist){
                     knn_dist[k] = knn_dist[k-1];
                     knn[k] = knn[k-1];
                 } 
@@ -159,7 +159,7 @@ void search_bp(double num, bp_tree* node){
             knn_dist[k] = dist;
             knn[k] = node->key[i];
             
-            if(len < 6) len++;
+            if(len < 5) len++;
         }
 
         if(right != NULL){
@@ -169,7 +169,7 @@ void search_bp(double num, bp_tree* node){
 
                 int k;
                 for(k = len; k>0; k--){
-                    if(knn_dist[k] > dist){
+                    if(knn_dist[k-1] > dist){
                         knn_dist[k] = knn_dist[k-1];
                         knn[k] = knn[k-1];
                     } 
@@ -179,12 +179,12 @@ void search_bp(double num, bp_tree* node){
                 knn_dist[k] = dist;
                 knn[k] = right->key[i];
 
-                if(len < 6) len++;
+                if(len < 5) len++;
             }
         }
         
         for(int i=0; i<len; i++){
-            printf("(%.0f, %.0f) : dist %.0f   ", knn[i].pos[0], knn[i].pos[1], knn_dist[i]);
+            printf("(%.0f, %.0f) : iDist %.2f   ", knn[i].pos[0], knn[i].pos[1], knn[i].iDist);
         }
         printf("\n");
     }

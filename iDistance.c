@@ -17,6 +17,7 @@ sem_t r_lock;
 sem_t lock;
 int reader;
 int data_num;
+int read_num;
 
 int reference_range = 55;
 int reference_point[5][2] = {
@@ -56,7 +57,7 @@ void* insert_th(void* arg) {
         sem_wait(&lock);
         double x = (double)xorshift(args->seed);
         double y = (double)xorshift(args->seed);
-        sem_wait(&lock);
+        sem_post(&lock);
 
         for (int i = 0; i < 5; i++) {
             double dist = sqrt(pow((double)reference_point[i][0] - x, 2) + pow((double)reference_point[i][1] - y, 2));
@@ -75,7 +76,7 @@ void* insert_th(void* arg) {
         num.pos[1] = y;
 
         sem_wait(&lock);
-        printf("insert thread(id): %lu, insert: %.2f (%.0f, %.0f)\n", pthread_self(), iDistance, x, y);
+        printf("\ninsert thread(id): %lu, insert: %.2f (%.0f, %.0f)\n", pthread_self(), iDistance, x, y);
         insert_bp(num, args->root);
         data_num++;
         sem_post(&lock);
@@ -120,10 +121,11 @@ void* read_th(void* arg) {
 
         sem_wait(&r_lock);
         reader++;
+        read_num++;
         if(reader == 1) sem_wait(&lock);
         sem_post(&r_lock);
 
-        printf("read thread(id): %lu, insert: %.2f (%.0f, %.0f)\n", pthread_self(), iDistance, x, y);
+        printf("\nread thread(id): %lu, search: %.2f (%.0f, %.0f)\n", pthread_self(), iDistance, x, y);
         if(data_num != 0) search_bp(iDistance, args->root);
         else printf("No Data In IDistance\n");
 
@@ -148,10 +150,14 @@ int main(){
     scanf("%d", &n);
 
     for(int i=0; i<n; i++){
-        printf("Test: %d\n", n);
+        printf("Test: %d\n", i+1);
 
         sem_init(&r_lock, 0, 1);
         sem_init(&lock, 0, 1);
+        reader = 0;
+
+        data_num = 0;
+        read_num = 0;
 
         root = get_bp(11);
         args.root = root;
@@ -159,9 +165,6 @@ int main(){
         seed[0] = (unsigned int)n;
         seed[1] = 42;
         args.seed = seed;
-
-        reader = 0;
-        data_num = 0;
 
         pthread_create(&writers[0], NULL, insert_th, &args);
         pthread_create(&writers[1], NULL, insert_th, &args);
@@ -177,5 +180,7 @@ int main(){
 
         sem_destroy(&r_lock);
         sem_destroy(&lock);
+
+        printf("Test %d - data_num: %d, read_num: %d\n\n", i+1, data_num, read_num);
     }
 }
