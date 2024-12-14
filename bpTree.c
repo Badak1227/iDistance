@@ -98,12 +98,96 @@ void split_bp(bp_tree* node){
 
     node->child[0] = left;
     node->child[1] = right;
-
-    printf("split to - p: %.0f, l: %.0f, r: %.0f\n", node->key[0].iDist, node->child[0]->key[0].iDist, node->child[1]->key[0].iDist);
 }
 
-void search_bp(double iDist, bp_tree* node){
+void search_bp(double num, bp_tree* node){
+    // 리프 노드가 아닐 때
+    if (node->leaf_bool == 0) {
+        //적정 탐색 지점 찾기
+        int i=0;
+        for (i = 0; i < node->key_len; i++) {
+            if (node->key[i].iDist > num) {
+                break;
+            }
+        }
 
+        search_bp(num, node);
+    }
+    //리프 노드일 때
+    else {
+        value knn[6] = {0};
+        double knn_dist[6] = {0};
+        int len = 0;
+
+        bp_tree* left = node->prev;
+        bp_tree* right = node->next;
+
+        if(left != NULL){
+            for(int i=0; i<left->key_len; i++){
+                double dist = left->key[i].iDist - num;
+                dist = dist < 0 ? -dist : dist;
+
+                int k;
+                for(k = len; k>0; k--){
+                    if(knn_dist[k] > dist){
+                        knn_dist[k] = knn_dist[k-1];
+                        knn[k] = knn[k-1];
+                    } 
+                    else break;
+                }
+
+                knn_dist[k] = dist;
+                knn[k] = left->key[i];
+
+                if(len < 6) len++;
+            }
+        }
+
+        for(int i=0; i<node->key_len; i++){
+            double dist = node->key[i].iDist - num;
+            dist = dist < 0 ? -dist : dist;
+
+            int k;
+            for(k = len; k>0; k--){
+                if(knn_dist[k] > dist){
+                    knn_dist[k] = knn_dist[k-1];
+                    knn[k] = knn[k-1];
+                } 
+                else break;
+            }
+
+            knn_dist[k] = dist;
+            knn[k] = node->key[i];
+            
+            if(len < 6) len++;
+        }
+
+        if(right != NULL){
+            for(int i=0; i<right->key_len; i++){
+                double dist = right->key[i].iDist - num;
+                dist = dist < 0 ? -dist : dist;
+
+                int k;
+                for(k = len; k>0; k--){
+                    if(knn_dist[k] > dist){
+                        knn_dist[k] = knn_dist[k-1];
+                        knn[k] = knn[k-1];
+                    } 
+                    else break;
+                }
+
+                knn_dist[k] = dist;
+                knn[k] = right->key[i];
+
+                if(len < 6) len++;
+            }
+        }
+        
+        for(int i=0; i<len; i++){
+            printf("(%.0f, %.0f) : dist %.0f   ", knn[i].pos[0], knn[i].pos[1], knn_dist[i]);
+        }
+        printf("\n");
+    }
 }
 
 void insert_bp(value num, bp_tree* node){
@@ -118,7 +202,7 @@ void insert_bp(value num, bp_tree* node){
         node->key[i] = num;
 
         node->key_len++;
-
+        
         if(node->key_len == node->m-1)    split_bp(node);
     }
     //현재 노드가 leaf_node가 아닐 경우
@@ -153,9 +237,6 @@ void insert_bp(value num, bp_tree* node){
 
             node->key_len++;
 
-            printf("merge - p: %.0f, l: %.0f, r: %.0f\n", node->key[0].iDist, node->child[i]->key[0].iDist, node->child[i+1]->key[0].iDist);
-            
-            printf("\n");
             if(node->key_len == node->m-1)    split_bp(node);
         }
     }
