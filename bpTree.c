@@ -51,8 +51,8 @@ void split_bp(bp_tree* node){
         right->key_len = node->key_len - left->key_len;
         
         //key값 좌우 노드로 분배
-        int i=0;
-        for(i; i<left->key_len; i++)    left->key[i] = node->key[i];
+        int i;
+        for(i=0; i<left->key_len; i++)    left->key[i] = node->key[i];
         for(int j=0; i<node->key_len; j++,i++)  right->key[j] = node->key[i];
 
         //leaf노드끼리 연결
@@ -100,13 +100,13 @@ void split_bp(bp_tree* node){
     node->child[1] = right;
 }
 
-void search_bp(double num, bp_tree* node){
+void search_bp(value num, bp_tree* node){
     // 리프 노드가 아닐 때
     if (node->leaf_bool == 0) {
         //적정 탐색 지점 찾기
         int i=0;
         for (i = 0; i < node->key_len; i++) {
-            if (node->key[i].iDist > num) {
+            if (node->key[i].iDist > num.iDist) {
                 break;
             }
         }
@@ -115,16 +115,17 @@ void search_bp(double num, bp_tree* node){
     }
     //리프 노드일 때
     else {
-        value knn[5] = {0};
+        value knn[6] = {0};
         double knn_dist[6] = {0};
         int len = 0;
 
         bp_tree* left = node->prev;
         bp_tree* right = node->next;
 
+        //왼쪽 노드 키값들 서치
         if(left != NULL){
             for(int i=0; i<left->key_len; i++){
-                double dist = left->key[i].iDist - num;
+                double dist = left->key[i].iDist - num.iDist;
                 dist = dist < 0 ? -dist : dist;
 
                 int k;
@@ -143,8 +144,9 @@ void search_bp(double num, bp_tree* node){
             }
         }
 
+        //현재 노드 키값들 서치
         for(int i=0; i<node->key_len; i++){
-            double dist = node->key[i].iDist - num;
+            double dist = node->key[i].iDist - num.iDist;
             dist = dist < 0 ? -dist : dist;
 
             int k;
@@ -162,9 +164,10 @@ void search_bp(double num, bp_tree* node){
             if(len < 5) len++;
         }
 
+        //오른쪽 노드 키값들 서치
         if(right != NULL){
             for(int i=0; i<right->key_len; i++){
-                double dist = right->key[i].iDist - num;
+                double dist = right->key[i].iDist - num.iDist;
                 dist = dist < 0 ? -dist : dist;
 
                 int k;
@@ -183,6 +186,7 @@ void search_bp(double num, bp_tree* node){
             }
         }
         
+        printf("search (%.0f, %.0f) %.2f - ", num.pos[0], num.pos[1], num.iDist);
         for(int i=0; i<len; i++){
             printf("(%.0f, %.0f) : iDist %.2f   ", knn[i].pos[0], knn[i].pos[1], knn[i].iDist);
         }
@@ -193,8 +197,8 @@ void search_bp(double num, bp_tree* node){
 void insert_bp(value num, bp_tree* node){
     //현재 노드가 leaf_node일 경우 숫자 삽입
     if(node->leaf_bool == 1){
-        int i = node->key_len;
-        for(i; i>0; i--){
+        int i;
+        for(i = node->key_len; i>0; i--){
             if(node->key[i-1].iDist > num.iDist) node->key[i] = node->key[i-1];
             else break;
         }

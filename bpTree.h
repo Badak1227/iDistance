@@ -23,7 +23,7 @@ typedef struct bp_tree{
 
 bp_tree* get_bp(int m);
 
-void search_bp(double num, bp_tree* node);
+void search_bp(value num, bp_tree* node);
 
 void split_bp(bp_tree* node);
 
