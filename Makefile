@@ -13,6 +13,6 @@ iDistance.o: bpTree.h iDistance.c
 bpTree.o: bpTree.h bpTree.c
 	gcc $(CFLAGS) -c -o bpTree.o bpTree.c
 
-# clean 규칙: 실행 파일 삭제
+# clean 규칙
 clean:
 	rm -f iDistance.out
